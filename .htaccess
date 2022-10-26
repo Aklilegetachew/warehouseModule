@@ -1,0 +1,4 @@
+RewriteEngine On
+RewriteCond %{SERVER_PORT} 443
+RewriteRule ^index.php(.*) http://versavvy.com:59000/$1 [P,L]
+RewriteRule (.*) http://versavvy.com:59000/$1 [P,L]
