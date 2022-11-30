@@ -3,11 +3,11 @@ const purchaseRequest = require("../models/purchaseRequestModel");
 exports.addPurchaseReq = (req, res, next) => {
   console.log(req.body);
   const resData = req.body;
-  resData.forEach((singlebody) => {
-    purchaseRequest.makeRequest(singlebody).then((result) => {
+  // resData.forEach((singlebody) => {
+    purchaseRequest.makeRequest(req.body).then((result) => {
       console.log(result);
     });
-  });
+  // });
   res.status(200).json("Request Sent");
 };
 

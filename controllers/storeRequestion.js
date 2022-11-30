@@ -7,7 +7,6 @@ const receivedModule = require("../models/recievedMatModules");
 exports.showStoreReq = (req, res, next) => {
   console.log(req.body);
   storeRequestion.showRequstion().then((result) => {
-    console.log(result);
     res.status(200).json(result);
   });
 };
@@ -26,20 +25,25 @@ exports.responseStoreReq = (req, res, next) => {
         if (result.materialtype == "ACCS") {
           accsMat
             .checkExisAccsM(result.accs_name, result.material_type, result)
-            .then((found) => {
-              console.log(found);
+            .then(async (found) => {
               if (found[0]) {
-                console.log("found");
-                const response = accsMat.subAccsQty(found[1], result);
-                storeRequestion.makeAccept(singBody.id);
-                res.status(200).json({
-                  message: "items Updated",
-                });
+                const response = await accsMat.subAccsQty(found[1], result);
+                if (response == +"summery_Updated") {
+                  storeRequestion.financeSubAsset(result, "ACCS");
+                  storeRequestion.makeAccept(singBody.id);
+                  res.status(200).json({
+                    message: "items Updated",
+                  });
+                } else {
+                  res.status(200).json({
+                    message: "low_stock",
+                  });
+                }
               } else {
                 console.log("Not Found" + result);
                 purchaseMaterials.push(result);
                 res.status(200).json({
-                  message: "no material in store please purchase these items",
+                  message: "no_material",
                   materials: purchaseMaterials,
                 });
               }
@@ -47,18 +51,24 @@ exports.responseStoreReq = (req, res, next) => {
         } else if (result.materialtype == "RAW") {
           rawMat
             .checkExisRawM(result.raw_name, result.material_type, result)
-            .then((found) => {
-              console.log(found[1]);
+            .then(async (found) => {
               if (found[0]) {
-                const response = rawMat.subQty(found[1], result);
-                storeRequestion.makeAccept(singBody.id);
-                res.status(200).json({
-                  message: "items Updated",
-                });
+                const response = await rawMat.subQty(found[1], result);
+                if (response === "summery_Updated") {
+                  storeRequestion.financeSubAsset(result, "RAW");
+                  storeRequestion.makeAccept(singBody.id);
+                  res.status(200).json({
+                    message: response,
+                  });
+                } else {
+                  res.status(200).json({
+                    message: response,
+                  });
+                }
               } else {
                 purchaseMaterials.push(result);
                 res.status(200).json({
-                  message: "no material in store please purchase these items",
+                  message: "no_material",
                   materials: purchaseMaterials,
                 });
               }
@@ -66,20 +76,38 @@ exports.responseStoreReq = (req, res, next) => {
         } else if (result.materialtype == "FIN") {
           finMat
             .checkExisFinM(result.fin_name, result.material_type, result)
-            .then((found) => {
+            .then(async (found) => {
               console.log(found);
               if (found[0]) {
                 const response = finMat.subQty(found[1], result);
+                if (response === "summery_Updated") {
+                  const fromFinanac = await storeRequestion.financeRecevable(
+                    result
+                  );
+                  res.status(200).json({
+                    message: "items Updated",
+                    messageFinance: fromFinanac.data,
+                  });
+                  storeRequestion.makeAccept(singBody.id);
+                } else {
+                  res.status(200).json({
+                    message: response,
+                  });
+                }
               } else {
                 console.log("Not Found" + result);
                 purchaseMaterials.push(result);
+                res.status(200).json({
+                  message: "no_material",
+                  materials: purchaseMaterials,
+                });
               }
             });
         }
       }
     });
   } else {
-    receivedModule.declineRecived(singBody.id).then((result) => {
+    receivedModule.declineRequest(singBody.id).then((result) => {
       res.status(200).json({
         message: "Item requestion declined",
         declinedMat: declinedMats,

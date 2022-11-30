@@ -1,5 +1,7 @@
 const db = require("../util/db");
 const rawMat = require("./rawMaterialModel");
+const axios = require("axios");
+const finAxios = require("../midelware/financeaxios")
 
 module.exports = class receivedMat {
   static viewnewPurchased() {
@@ -10,6 +12,19 @@ module.exports = class receivedMat {
       })
       .catch((err) => {
         console.log(err);
+      });
+  }
+
+  static sendFinanceAsset(newData) {
+    finAxios
+      .post("/addAsset", {
+        newData,
+      })
+      .then((res) => {
+        return true;
+      })
+      .catch((err) => {
+        return err;
       });
   }
 
@@ -24,12 +39,12 @@ module.exports = class receivedMat {
           newItem.new_materialcode,
           newItem.new_spec,
           newItem.new_materialunit,
-          newItem.new_value,
-          newItem.new_referncenum,
-          newItem.new_materialtype,
+          newItem.new_value || "",
+          newItem.new_referncenum || "",
+          newItem.new_materialtype || "FIN",
           // newItem.new_date,
-          newItem.new_remark, 
-          newItem.new_status,
+          newItem.new_remark || "",
+          newItem.new_status|| "Produced",
         ]
       )
       .then(() => {
@@ -37,6 +52,18 @@ module.exports = class receivedMat {
       })
       .catch((err) => {
         console.log(err);
+      });
+  }
+  static async sendFinancePayable(purchaseddata) {
+    await finAxios
+      .post("/accountPayable", {
+        purchaseddata,
+      })
+      .then((res) => {
+        return res;
+      })
+      .catch((err) => {
+        return err;
       });
   }
 
@@ -116,6 +143,21 @@ module.exports = class receivedMat {
     return db
       .execute(
         "UPDATE new_materials SET new_status = 'DECLINED' WHERE id='" +
+          itemId +
+          "'"
+      )
+      .then((res) => {
+        return "Selected item declined";
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  static declineRequest(itemId) {
+    return db
+      .execute(
+        "UPDATE material_request SET mat_status = 'DECLINED' WHERE id='" +
           itemId +
           "'"
       )

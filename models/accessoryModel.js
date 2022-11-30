@@ -82,21 +82,17 @@ module.exports = class accessory {
       });
   }
 
-  static subAccsQty(oldMat, newMat) {
+  static async subAccsQty(oldMat, newMat) {
     var updateQuan;
     if (oldMat[0].accs_quantity >= parseInt(newMat.accs_quantity)) {
       updateQuan =
         parseInt(oldMat[0].accs_quantity) - parseInt(newMat.accs_quantity);
-      const newValue =
-        parseFloat(oldMat[0].acc_value) -
-        parseFloat(newMat.accs_quantity) * parseFloat(newMat.accs_value);
+   
 
-      return db
+      return await db
         .execute(
           "UPDATE accs_materials SET accs_quantity ='" +
             updateQuan +
-            "', accs_value = '" +
-            newValue +
             "' WHERE id ='" +
             oldMat[0].id +
             "'"
@@ -118,13 +114,14 @@ module.exports = class accessory {
               ]
             )
             .then((res) => {
-              return "summery Updated";
+              return "summery_Updated";
             });
         })
         .catch((e) => {
           console.log(e);
         });
     } else {
+     
       return "Low in stock";
     }
   }
@@ -134,8 +131,8 @@ module.exports = class accessory {
       .execute(
         "SELECT * FROM accs_materials WHERE accs_name='" +
           newName +
-          "' AND accs_spec='" +
-          mat.accs_spec +
+          "' AND accs_description='" +
+          mat.accs_description +
           "'"
       )
       .then((result) => {

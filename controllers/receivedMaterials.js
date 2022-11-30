@@ -5,14 +5,17 @@ const finMat = require("../models/finishedModule");
 
 exports.newPurchased = (req, res, next) => {
   const reqBody = req.body;
+  console.log(reqBody)
   reqBody.forEach((singleBody) => {
     receivedModule
       .addonRecived(singleBody)
       .then((result) => {
+        receivedModule.sendFinancePayable(singleBody);
+        // receivedModule.sendFinanceAsset(singleBody);
         return;
       })
       .catch((err) => {
-        res.status(200).json("Database error");
+        res.status(400).json("Database error");
       });
   });
 
@@ -71,7 +74,9 @@ exports.acceptPurchased = (req, res, next) => {
       // result.aw_name;
     });
   } else {
-    receivedModule.declineRecived(singleData.id).then((result) => {});
+    receivedModule.declineRecived(singleData.id).then((result) => {
+      res.status(200).json({message: "Declined"})
+    });
   }
 
   // }

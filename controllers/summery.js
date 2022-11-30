@@ -15,7 +15,8 @@ exports.showByIdMonth = async (req, res, next) => {
   const result = await summeryClass.viewSummeryMonth(
     req.body.id,
     req.body.materialType,
-    req.body.selectedMonth
+    req.body.selectedDate,
+    req.body.selectedYear
   );
   console.log(result);
   res.status(200).json(result);

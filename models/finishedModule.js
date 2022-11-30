@@ -134,16 +134,12 @@ module.exports = class accessory {
     if (oldMat[0].finished_quantity >= parseInt(newMat.fin_quantity)) {
       updateQuan =
         parseInt(oldMat[0].finished_quantity) - parseInt(newMat.fin_quantity);
-      const newValue =
-        parseFloat(oldMat[0].finished) -
-        parseFloat(newMat.fin_quantity) * parseFloat(newMat.fin_value);
-
+      
       return db
         .execute(
           "UPDATE finished_goods SET	finished_quantity ='" +
             updateQuan +
-            "', finished_value = '" +
-            newValue +
+
             "' WHERE id ='" +
             oldMat[0].id +
             "'"
@@ -165,7 +161,7 @@ module.exports = class accessory {
               ]
             )
             .then((res) => {
-              return "summery Updated";
+              return "summery_Updated";
             });
         })
         .catch((e) => {
@@ -181,8 +177,8 @@ module.exports = class accessory {
       .execute(
         "SELECT * FROM finished_goods WHERE finished_name='" +
           newName +
-          "' AND finished_spec='" +
-          mat.fin_spec +
+          "' AND finished_description='" +
+          mat.fin_description +
           "'"
       )
       .then((result) => {
