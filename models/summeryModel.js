@@ -83,8 +83,7 @@ module.exports = class storeRequestion {
         .catch((err) => {
           console.log(err);
         });
-    } 
-    else if (selectedDate.start !== undefined && selectedYear !== "") {
+    } else if (selectedDate.start !== undefined && selectedYear !== "") {
       return db
         .execute(
           "SELECT * FROM summery WHERE material_id='" +
@@ -107,7 +106,7 @@ module.exports = class storeRequestion {
               // const dbDate = new Date(eachData["summery_date"]).getTime();
               const d = Date.parse(eachData["summery_date"]);
               // const dbYear = Date(eachData["summery_date"]).getFullYear();
-              console.log(eachData["summery_date"].getYear())
+              console.log(eachData["summery_date"].getYear());
               console.log("D", d);
               if (d >= start && d <= end && dbYear == selectedYear) {
                 console.log("eachData", eachData);
@@ -179,13 +178,39 @@ module.exports = class storeRequestion {
   }
 
   static viewType(sumType) {
-    return db
-      .execute("SELECT * FROM summery WHERE material_type='" + sumType + "'")
-      .then((respo) => {
-        return respo[0];
-      })
-      .catch((e) => {
-        return e;
-      });
+    if (sumType == "RAW") {
+      return db
+        .execute(
+          "SELECT summery.*, raw_materials.raw_name, raw_materials.raw_spec, raw_materials.raw_description FROM summery, raw_materials WHERE summery.material_id = raw_materials.id AND summery.material_type = 'RAW'"
+        )
+        .then((respo) => {
+          return respo[0];
+        })
+        .catch((e) => {
+          return e;
+        });
+    } else if (sumType == "ACCS") {
+      return db
+        .execute(
+          "SELECT summery.*, accs_materials.accs_name, accs_materials.accs_spec, accs_materials.accs_description FROM summery, accs_materials WHERE summery.material_id = accs_materials.id AND summery.material_type = 'ACCS'"
+        )
+        .then((respo) => {
+          return respo[0];
+        })
+        .catch((e) => {
+          return e;
+        });
+    } else {
+      return db
+        .execute(
+          "SELECT summery.*, finished_goods.finished_name, finished_goods.finished_spec, finished_goods.finished_description FROM summery, finished_goods WHERE summery.material_id = finished_goods.id AND summery.material_type = 'FIN'"
+        )
+        .then((respo) => {
+          return respo[0];
+        })
+        .catch((e) => {
+          return e;
+        });
+    }
   }
 };
