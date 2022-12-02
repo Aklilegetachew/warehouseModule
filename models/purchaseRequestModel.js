@@ -16,10 +16,10 @@ module.exports = class purchaseModule {
         ]
       )
       .then((res) => {
-        return "Request Sent";
+        return [true, "Request Sent"];
       })
       .catch((err) => {
-        console.log(err);
+        return [false, err];
       });
   }
 
